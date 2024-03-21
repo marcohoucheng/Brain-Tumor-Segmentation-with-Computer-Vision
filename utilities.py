@@ -4,8 +4,6 @@ import nibabel as nib
 import cv2
 import matplotlib.pyplot as plt
 
-from utilities import *
-
 # Pytorch functions
 import torch
 # Neural network layers
@@ -46,10 +44,10 @@ def calculate_accuracy(y_prob, y):
 def train(model, iterator, optimizer, criterion, device):
   epoch_loss = 0
   epoch_acc = 0
-
+  
   # Train mode
   model.train()
-
+  
   for (x,y) in iterator:
     x = x.to(device)
     y = y.to(device)
