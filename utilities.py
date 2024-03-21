@@ -1,11 +1,21 @@
-import time
+import os, random, time
 import numpy as np
+import nibabel as nib
+import cv2
 import matplotlib.pyplot as plt
+
+from utilities import *
 
 # Pytorch functions
 import torch
 # Neural network layers
+import torch.nn as nn
 import torch.nn.functional as F
+# Optimizer
+import torch.optim as optim
+from torch.utils.data import Dataset, DataLoader, random_split
+# Torchvision library
+from torchvision import transforms
 
 # For results
 from sklearn.metrics import confusion_matrix
@@ -14,7 +24,7 @@ from sklearn.metrics import classification_report
 def count_parameters(model):
   return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
-def calculate_accuracy(y_pred, y):
+def calculate_accuracy(y_prob, y):
   '''
   Compute accuracy from ground-truth and predicted labels.
 
@@ -28,10 +38,9 @@ def calculate_accuracy(y_pred, y):
   acc: float
     Accuracy
   '''
-  y_prob = F.softmax(y_pred, dim = -1)
-  y_pred = y_prob.argmax(dim=1, keepdim = True)
+  y_pred = (y_prob > 0.5).int()
   correct = y_pred.eq(y.view_as(y_pred)).sum()
-  acc = correct.float()/y.shape[0]
+  acc = correct.float()/np.prod(y.shape)
   return acc
 
 def train(model, iterator, optimizer, criterion, device):
@@ -158,6 +167,9 @@ def model_testing(model, test_iterator, criterion, device, model_name='best_mode
   test_loss, test_acc = evaluate(model, test_iterator, criterion, device)
   print(f"Test -- Loss: {test_loss:.3f}, Acc: {test_acc * 100:.2f} %")
 
+
+## Need to edit
+  
 def predict(model, iterator, device):
 
   # Evaluation mode
