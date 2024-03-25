@@ -94,6 +94,7 @@ def evaluate(model, iterator, criterion, device):
       y_pred = model(x)
 
       # Compute loss
+      print(y_pred.shape, y.shape)
       loss = criterion(y_pred, y)
 
       # Compute accuracy
