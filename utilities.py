@@ -56,7 +56,6 @@ def train(model, iterator, optimizer, criterion, device):
 
     # Make Predictions
     y_pred = model(x)
-
     # Compute loss
     loss = criterion(y_pred, y)
 
