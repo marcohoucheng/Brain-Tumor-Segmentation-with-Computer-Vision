@@ -22,7 +22,7 @@ from sklearn.metrics import classification_report
 def count_parameters(model):
   return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
-def calculate_accuracy(y_prob, y):
+def calculate_accuracy(y_prob, y): # DICE
   '''
   Compute accuracy from ground-truth and predicted labels.
 
@@ -44,18 +44,22 @@ def calculate_accuracy(y_prob, y):
 def train(model, iterator, optimizer, criterion, device):
   epoch_loss = 0
   epoch_acc = 0
-  
+
   # Train mode
   model.train()
   
-  for (x,y) in iterator:
+  for i, (x,y) in enumerate(iterator):
+
     x = x.to(device)
     y = y.to(device)
+
     # Set gradients to zero
     optimizer.zero_grad()
 
     # Make Predictions
     y_pred = model(x)
+    y_pred = y_pred.squeeze(1)
+
     # Compute loss
     loss = criterion(y_pred, y)
 
@@ -72,6 +76,8 @@ def train(model, iterator, optimizer, criterion, device):
     epoch_loss += loss.item()
     epoch_acc += acc.item()
 
+    print("{0:0.1f}".format((i+1)/len(iterator)*100), "% loaded in this epoch", end="\r")
+
   return epoch_loss/len(iterator), epoch_acc/len(iterator)
 
 def evaluate(model, iterator, criterion, device):
@@ -84,7 +90,7 @@ def evaluate(model, iterator, criterion, device):
   # Do not compute gradients
   with torch.no_grad():
 
-    for(x,y) in iterator:
+    for (x,y) in iterator:
 
       x = x.to(device)
       y = y.to(device)
@@ -93,7 +99,6 @@ def evaluate(model, iterator, criterion, device):
       y_pred = model(x)
 
       # Compute loss
-      print(y_pred.shape, y.shape)
       loss = criterion(y_pred, y)
 
       # Compute accuracy
