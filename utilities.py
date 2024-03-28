@@ -41,6 +41,23 @@ def calculate_accuracy(y_prob, y): # DICE
   acc = correct.float()/np.prod(y.shape)
   return acc
 
+class EarlyStopper:
+    def __init__(self, patience=1, min_delta=0):
+        self.patience = patience
+        self.min_delta = min_delta
+        self.counter = 0
+        self.min_validation_loss = float('inf')
+
+    def early_stop(self, validation_loss):
+        if validation_loss < self.min_validation_loss:
+            self.min_validation_loss = validation_loss
+            self.counter = 0
+        elif validation_loss > (self.min_validation_loss + self.min_delta):
+            self.counter += 1
+            if self.counter >= self.patience:
+                return True
+        return False
+
 def train(model, iterator, optimizer, criterion, device):
   epoch_loss = 0
   epoch_acc = 0
@@ -97,6 +114,7 @@ def evaluate(model, iterator, criterion, device):
 
       # Make Predictions
       y_pred = model(x)
+      y_pred = y_pred.squeeze(1)
 
       # Compute loss
       loss = criterion(y_pred, y)
@@ -146,6 +164,11 @@ def model_training(n_epochs, model, train_iterator, valid_iterator, optimizer, c
     valid_losses.append(valid_loss)
     valid_accs.append(valid_acc)
 
+    # Early stopping
+    early_stopper = EarlyStopper(patience=5, min_delta=1)
+    if early_stopper.early_stop(valid_loss):             
+      break
+
   return train_losses, train_accs, valid_losses, valid_accs
 
 def plot_results(n_epochs, train_losses, train_accs, valid_losses, valid_accs):
@@ -169,9 +192,6 @@ def model_testing(model, test_iterator, criterion, device, model_name='best_mode
   model.load_state_dict(torch.load(model_name))
   test_loss, test_acc = evaluate(model, test_iterator, criterion, device)
   print(f"Test -- Loss: {test_loss:.3f}, Acc: {test_acc * 100:.2f} %")
-
-
-## Need to edit
   
 def predict(model, iterator, device):
 
@@ -184,14 +204,16 @@ def predict(model, iterator, device):
   with torch.no_grad():
     for (x, y) in iterator:
       x = x.to(device)
-      y_pred = model(x)
+      y = y.to(device)
 
-      # Get label with highest score
-      y_prob = F.softmax(y_pred, dim = -1)
-      top_pred = y_prob.argmax(1, keepdim=True)
+      y_pred = model(x)
+      y_pred = y_pred.squeeze(1)
+
+      ## final prediction with a cut off probability
+      y_pred = (y_pred>0).float()
 
       labels.append(y.cpu())
-      pred.append(top_pred.cpu())
+      pred.append(y_pred.cpu())
 
   labels = torch.cat(labels, dim=0)
   pred = torch.cat(pred, dim=0)
