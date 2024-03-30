@@ -93,7 +93,7 @@ def train(model, iterator, optimizer, criterion, device):
     epoch_loss += loss.item()
     epoch_acc += acc.item()
 
-    print("{0:0.1f}".format((i+1)/len(iterator)*100), "% loaded in this epoch", end="\r")
+    print("{0:0.1f}".format((i+1)/len(iterator)*100), "% loaded in this epoch for training", end="\r")
 
   return epoch_loss/len(iterator), epoch_acc/len(iterator)
 
@@ -107,7 +107,7 @@ def evaluate(model, iterator, criterion, device):
   # Do not compute gradients
   with torch.no_grad():
 
-    for (x,y) in iterator:
+    for i, (x,y) in enumerate(iterator):
 
       x = x.to(device)
       y = y.to(device)
@@ -125,6 +125,8 @@ def evaluate(model, iterator, criterion, device):
       # Extract data from loss and accuracy
       epoch_loss += loss.item()
       epoch_acc += acc.item()
+
+      print("{0:0.1f}".format((i+1)/len(iterator)*100), "% loaded in this epoch for validation", end="\r")
 
   return epoch_loss/len(iterator), epoch_acc/len(iterator)
 
