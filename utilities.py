@@ -204,6 +204,7 @@ def predict(model, iterator, device):
   pred = []
 
   with torch.no_grad():
+    print("Before iterator")
     for (x, y) in iterator:
       x = x.to(device)
       y = y.to(device)
