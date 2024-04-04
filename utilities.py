@@ -114,7 +114,7 @@ def evaluate(model, iterator, criterion, device):
 
       # Make Predictions
       y_pred = model(x)
-      y_pred = y_pred.squeeze(1)
+      y_pred = y_pred.squeeze(1) # [256, 64, 64]
 
       # Compute loss
       loss = criterion(y_pred, y)
@@ -126,7 +126,7 @@ def evaluate(model, iterator, criterion, device):
       epoch_loss += loss.item()
       epoch_acc += acc.item()
 
-      print("{0:0.1f}".format((i+1)/len(iterator)*100), "% loaded in this epoch for validation", end="\r")
+      print("{0:0.1f}".format((i+1)/len(iterator)*100), "% loaded in this epoch for evaluation.", end="\r")
 
   return epoch_loss/len(iterator), epoch_acc/len(iterator)
 
@@ -189,7 +189,7 @@ def plot_results(n_epochs, train_losses, train_accs, valid_losses, valid_accs):
   _ = plt.legend(['Train', 'Validation'])
   plt.grid('on'), plt.xlabel('Epoch'), plt.ylabel('Accuracy')
 
-def model_testing(model, test_iterator, criterion, device, model_name='best_model.pt'):
+def model_testing(model, test_iterator, criterion, device, save, model_name='best_model.pt'):
   # Test model
   model.load_state_dict(torch.load(model_name))
   test_loss, test_acc = evaluate(model, test_iterator, criterion, device)
@@ -204,7 +204,6 @@ def predict(model, iterator, device):
   pred = []
 
   with torch.no_grad():
-    print("Before iterator")
     for (x, y) in iterator:
       x = x.to(device)
       y = y.to(device)
