@@ -3,11 +3,8 @@ __pycache__/
 BraTS/
 tmp.ipynb
 tmp.py
-CNN_2.pt
-CNN_3.pt
-UNet.pt
-UNet2.pt
 flair.ipynb
 t1.ipynb
 t1ce.ipynb
 t2.ipynb
+**/*.pt
