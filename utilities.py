@@ -68,7 +68,7 @@ def train(model, iterator, optimizer, criterion, device):
   for i, (x,y) in enumerate(iterator):
 
     x = x.to(device)
-    y = y.to(device)
+    y = y.float().to(device)
 
     # Set gradients to zero
     optimizer.zero_grad()
@@ -110,7 +110,7 @@ def evaluate(model, iterator, criterion, device):
     for i, (x,y) in enumerate(iterator):
 
       x = x.to(device)
-      y = y.to(device)
+      y = y.float().to(device)
 
       # Make Predictions
       y_pred = model(x)
