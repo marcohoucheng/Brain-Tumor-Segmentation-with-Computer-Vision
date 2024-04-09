@@ -36,7 +36,7 @@ def calculate_accuracy(y_prob, y): # DICE
   acc: float
     Accuracy
   '''
-  y_pred = (y_prob > 0.5).int()
+  y_pred = (y_prob > 0).int()
   correct = y_pred.eq(y.view_as(y_pred)).sum()
   acc = correct.float()/np.prod(y.shape)
   return acc
@@ -52,7 +52,7 @@ class EarlyStopper:
         if validation_loss < self.min_validation_loss:
             self.min_validation_loss = validation_loss
             self.counter = 0
-        elif validation_loss > (self.min_validation_loss + self.min_delta):
+        elif validation_loss >= (self.min_validation_loss + self.min_delta):
             self.counter += 1
             if self.counter >= self.patience:
                 return True
@@ -167,7 +167,7 @@ def model_training(n_epochs, model, train_iterator, valid_iterator, optimizer, c
     valid_accs.append(valid_acc)
 
     # Early stopping
-    early_stopper = EarlyStopper(patience=5, min_delta=1)
+    early_stopper = EarlyStopper(patience=5, min_delta=0)
     if early_stopper.early_stop(valid_loss):             
       break
 
