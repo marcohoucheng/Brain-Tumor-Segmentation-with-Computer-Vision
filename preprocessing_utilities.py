@@ -78,7 +78,7 @@ def Standardise(image) :
             new_image = np.nan_to_num(new_image)
         return new_image
 
-def convert_multi(folder, master_path = './BraTS'):
+def convert(folder, master_path = './BraTS'):
 
     org_folder = 'BraTS2021_Training_Data'
     img_path = os.path.join(master_path, org_folder, folder, folder + '_flair.nii.gz')
