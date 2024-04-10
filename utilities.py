@@ -64,6 +64,9 @@ def train(model, iterator, optimizer, criterion, device):
 
   # Train mode
   model.train()
+
+  epoch_loss = []
+  epoch_acc = []
   
   for i, (x,y) in enumerate(iterator):
 
@@ -90,12 +93,12 @@ def train(model, iterator, optimizer, criterion, device):
     optimizer.step()
 
     # Extract data from loss and accuracy
-    epoch_loss += loss.item()
-    epoch_acc += acc.item()
+    epoch_loss.append(loss.item())
+    epoch_acc.append(acc.item())
 
     print("{0:0.1f}".format((i+1)/len(iterator)*100), "% loaded in this epoch for training", end="\r")
 
-  return epoch_loss/len(iterator), epoch_acc/len(iterator)
+  return np.sum(epoch_loss)/len(iterator), np.sum(epoch_acc)/len(iterator), epoch_loss, epoch_acc
 
 def evaluate(model, iterator, criterion, device):
   epoch_loss = 0
@@ -103,6 +106,9 @@ def evaluate(model, iterator, criterion, device):
 
   # Evaluation mode
   model.eval()
+
+  epoch_loss = []
+  epoch_acc = []
 
   # Do not compute gradients
   with torch.no_grad():
@@ -123,12 +129,12 @@ def evaluate(model, iterator, criterion, device):
       acc = calculate_accuracy(y_pred, y)
 
       # Extract data from loss and accuracy
-      epoch_loss += loss.item()
-      epoch_acc += acc.item()
+      epoch_loss.append(loss.item())
+      epoch_acc.append(acc.item())
 
       print("{0:0.1f}".format((i+1)/len(iterator)*100), "% loaded in this epoch for evaluation.", end="\r")
 
-  return epoch_loss/len(iterator), epoch_acc/len(iterator)
+  return np.sum(epoch_loss)/len(iterator), np.sum(epoch_acc)/len(iterator), epoch_loss, epoch_acc
 
 def model_training(n_epochs, model, train_iterator, valid_iterator, optimizer, criterion, device, model_name='best_model.pt'):
 
@@ -141,13 +147,18 @@ def model_training(n_epochs, model, train_iterator, valid_iterator, optimizer, c
   valid_losses = []
   valid_accs = []
 
+  train_epoch_losses = []
+  train_epoch_accs = []
+  valid_epoch_losses = []
+  valid_epoch_accs = []
+
   # Loop over epochs
   for epoch in range(n_epochs):
     start_time = time.time()
     # Train
-    train_loss, train_acc = train(model, train_iterator, optimizer, criterion, device)
+    train_loss, train_acc, train_epoch_loss, train_epoch_acc = train(model, train_iterator, optimizer, criterion, device)
     # Validation
-    valid_loss, valid_acc = evaluate(model, valid_iterator, criterion, device)
+    valid_loss, valid_acc, valid_epoch_loss, valid_epoch_acc = evaluate(model, valid_iterator, criterion, device)
     # Save best model
     if valid_loss < best_valid_loss:
       best_valid_loss = valid_loss
@@ -166,12 +177,17 @@ def model_training(n_epochs, model, train_iterator, valid_iterator, optimizer, c
     valid_losses.append(valid_loss)
     valid_accs.append(valid_acc)
 
+    train_epoch_losses.append(train_epoch_loss)
+    train_epoch_accs.append(train_epoch_acc)
+    valid_epoch_losses.append(valid_epoch_loss)
+    valid_epoch_accs.append(valid_epoch_acc)
+
     # Early stopping
     early_stopper = EarlyStopper(patience=5, min_delta=0)
     if early_stopper.early_stop(valid_loss):             
       break
 
-  return train_losses, train_accs, valid_losses, valid_accs
+  return train_losses, train_accs, valid_losses, valid_accs, train_epoch_losses, train_epoch_accs, valid_epoch_losses, valid_epoch_accs
 
 def plot_results(n_epochs, train_losses, train_accs, valid_losses, valid_accs):
   N_EPOCHS = n_epochs
