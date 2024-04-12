@@ -22,7 +22,7 @@ from sklearn.metrics import classification_report
 def count_parameters(model):
   return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
-def calculate_accuracy(y_prob, y): # DICE
+def calculate_accuracy(y_pred, y): # DICE
   '''
   Compute accuracy from ground-truth and predicted labels.
 
@@ -36,9 +36,15 @@ def calculate_accuracy(y_prob, y): # DICE
   acc: float
     Accuracy
   '''
-  y_pred = (y_prob > 0).int()
-  correct = y_pred.eq(y.view_as(y_pred)).sum()
-  acc = correct.float()/np.prod(y.shape)
+  y_prob = torch.sigmoid(y_pred)
+  y_pred = (y_prob>0.5).int()
+  acc = 0
+  for i in range(y.shape[0]):
+     y_tmp = y[i,:,:]
+     y_pred_tmp = y_pred[i,:,:]
+     acc_tmp = y_tmp.eq(y_pred_tmp).sum()/np.prod(y_tmp.shape)
+     acc += acc_tmp
+  acc /= y.shape[0]
   return acc
 
 class EarlyStopper:
@@ -59,19 +65,19 @@ class EarlyStopper:
         return False
 
 def train(model, iterator, optimizer, criterion, device):
-  epoch_loss = 0
-  epoch_acc = 0
+  batch_loss = 0
+  batch_acc = 0
 
   # Train mode
   model.train()
 
-  epoch_loss = []
-  epoch_acc = []
+  batch_loss = []
+  batch_acc = []
   
   for i, (x,y) in enumerate(iterator):
 
     x = x.to(device)
-    y = y.float().to(device)
+    y = y.to(device)
 
     # Set gradients to zero
     optimizer.zero_grad()
@@ -81,7 +87,7 @@ def train(model, iterator, optimizer, criterion, device):
     y_pred = y_pred.squeeze(1)
 
     # Compute loss
-    loss = criterion(y_pred, y)
+    loss = criterion(y_pred, y.float())
 
     # Compute accuracy
     acc = calculate_accuracy(y_pred, y)
@@ -93,22 +99,22 @@ def train(model, iterator, optimizer, criterion, device):
     optimizer.step()
 
     # Extract data from loss and accuracy
-    epoch_loss.append(loss.item())
-    epoch_acc.append(acc.item())
+    batch_loss.append(loss.item())
+    batch_acc.append(acc.item())
 
     print("{0:0.1f}".format((i+1)/len(iterator)*100), "% loaded in this epoch for training", end="\r")
-
-  return np.sum(epoch_loss)/len(iterator), np.sum(epoch_acc)/len(iterator), epoch_loss, epoch_acc
+  print("\n")
+  return np.sum(batch_loss)/len(iterator), np.sum(batch_acc)/len(iterator), batch_loss, batch_acc
 
 def evaluate(model, iterator, criterion, device):
-  epoch_loss = 0
-  epoch_acc = 0
+  batch_loss = 0
+  batch_acc = 0
 
   # Evaluation mode
   model.eval()
 
-  epoch_loss = []
-  epoch_acc = []
+  batch_loss = []
+  batch_acc = []
 
   # Do not compute gradients
   with torch.no_grad():
@@ -116,25 +122,25 @@ def evaluate(model, iterator, criterion, device):
     for i, (x,y) in enumerate(iterator):
 
       x = x.to(device)
-      y = y.float().to(device)
+      y = y.to(device)
 
       # Make Predictions
       y_pred = model(x)
-      y_pred = y_pred.squeeze(1) # [256, 64, 64]
+      y_pred = y_pred.squeeze(1) # [B, 64, 64]
 
       # Compute loss
-      loss = criterion(y_pred, y)
+      loss = criterion(y_pred, y.float())
 
       # Compute accuracy
       acc = calculate_accuracy(y_pred, y)
 
       # Extract data from loss and accuracy
-      epoch_loss.append(loss.item())
-      epoch_acc.append(acc.item())
+      batch_loss.append(loss.item())
+      batch_acc.append(acc.item())
 
       print("{0:0.1f}".format((i+1)/len(iterator)*100), "% loaded in this epoch for evaluation.", end="\r")
-
-  return np.sum(epoch_loss)/len(iterator), np.sum(epoch_acc)/len(iterator), epoch_loss, epoch_acc
+  print("\n")
+  return np.sum(batch_loss)/len(iterator), np.sum(batch_acc)/len(iterator), batch_loss, batch_acc
 
 def model_training(n_epochs, model, train_iterator, valid_iterator, optimizer, criterion, device, model_name='best_model.pt'):
 
@@ -147,18 +153,18 @@ def model_training(n_epochs, model, train_iterator, valid_iterator, optimizer, c
   valid_losses = []
   valid_accs = []
 
-  train_epoch_losses = []
-  train_epoch_accs = []
-  valid_epoch_losses = []
-  valid_epoch_accs = []
+  train_batch_losses = []
+  train_batch_accs = []
+  valid_batch_losses = []
+  valid_batch_accs = []
 
   # Loop over epochs
   for epoch in range(n_epochs):
     start_time = time.time()
     # Train
-    train_loss, train_acc, train_epoch_loss, train_epoch_acc = train(model, train_iterator, optimizer, criterion, device)
+    train_loss, train_acc, train_batch_loss, train_batch_acc = train(model, train_iterator, optimizer, criterion, device)
     # Validation
-    valid_loss, valid_acc, valid_epoch_loss, valid_epoch_acc = evaluate(model, valid_iterator, criterion, device)
+    valid_loss, valid_acc, valid_batch_loss, valid_batch_acc = evaluate(model, valid_iterator, criterion, device)
     # Save best model
     if valid_loss < best_valid_loss:
       best_valid_loss = valid_loss
@@ -166,8 +172,8 @@ def model_training(n_epochs, model, train_iterator, valid_iterator, optimizer, c
       torch.save(model.state_dict(), model_name)
     end_time = time.time()
 
-    print(f"\nEpoch: {epoch+1}/{n_epochs} -- Epoch Time: {end_time-start_time:.2f} s")
     print("---------------------------------")
+    print(f"\nEpoch: {epoch+1}/{n_epochs} -- Epoch Time: {end_time-start_time:.2f} s")
     print(f"Train -- Loss: {train_loss:.3f}, Acc: {train_acc * 100:.2f}%")
     print(f"Val -- Loss: {valid_loss:.3f}, Acc: {valid_acc * 100:.2f}%")
 
@@ -177,17 +183,17 @@ def model_training(n_epochs, model, train_iterator, valid_iterator, optimizer, c
     valid_losses.append(valid_loss)
     valid_accs.append(valid_acc)
 
-    train_epoch_losses.append(train_epoch_loss)
-    train_epoch_accs.append(train_epoch_acc)
-    valid_epoch_losses.append(valid_epoch_loss)
-    valid_epoch_accs.append(valid_epoch_acc)
+    train_batch_losses.append(train_batch_loss)
+    train_batch_accs.append(train_batch_acc)
+    valid_batch_losses.append(valid_batch_loss)
+    valid_batch_accs.append(valid_batch_acc)
 
     # Early stopping
     early_stopper = EarlyStopper(patience=5, min_delta=0)
     if early_stopper.early_stop(valid_loss):             
       break
 
-  return train_losses, train_accs, valid_losses, valid_accs, train_epoch_losses, train_epoch_accs, valid_epoch_losses, valid_epoch_accs
+  return train_losses, train_accs, valid_losses, valid_accs, train_batch_losses, train_batch_accs, valid_batch_losses, valid_batch_accs
 
 def plot_results(n_epochs, train_losses, train_accs, valid_losses, valid_accs):
   N_EPOCHS = n_epochs
@@ -205,11 +211,12 @@ def plot_results(n_epochs, train_losses, train_accs, valid_losses, valid_accs):
   _ = plt.legend(['Train', 'Validation'])
   plt.grid('on'), plt.xlabel('Epoch'), plt.ylabel('Accuracy')
 
-def model_testing(model, test_iterator, criterion, device, save, model_name='best_model.pt'):
+def model_testing(model, test_iterator, criterion, device, model_name='best_model.pt'):
   # Test model
   model.load_state_dict(torch.load(model_name))
-  test_loss, test_acc = evaluate(model, test_iterator, criterion, device)
+  test_loss, test_acc, test_batch_loss, test_batch_acc = evaluate(model, test_iterator, criterion, device)
   print(f"Test -- Loss: {test_loss:.3f}, Acc: {test_acc * 100:.2f} %")
+  return test_loss, test_acc, test_batch_loss, test_batch_acc
   
 def predict(model, iterator, device):
 
@@ -217,26 +224,24 @@ def predict(model, iterator, device):
   model.eval()
 
   labels = []
-  pred = []
+  preds = []
 
   with torch.no_grad():
     for (x, y) in iterator:
       x = x.to(device)
-      y = y.to(device)
+      y = y.int().to(device)
 
       y_pred = model(x)
       y_pred = y_pred.squeeze(1)
 
       ## final prediction with a cut off probability
-      y_pred = (y_pred>0).float()
+      y_prob = torch.sigmoid(y_pred)
+      y_pred = (y_prob>0.5).int()
 
       labels.append(y.cpu())
-      pred.append(y_pred.cpu())
+      preds.append(y_pred.cpu())
 
-  labels = torch.cat(labels, dim=0)
-  pred = torch.cat(pred, dim=0)
-
-  return labels, pred
+  return torch.cat(labels, dim=0), torch.cat(preds, dim=0)
 
 
 def print_report(model, test_iterator, device):
