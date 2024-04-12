@@ -22,6 +22,14 @@ from sklearn.metrics import classification_report
 def count_parameters(model):
   return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
+def dice_coefficient(pred, target):
+    # smooth = 1e-5  # To avoid division by zero
+    # intersection = (pred * target).sum(dim=(1, 2))
+    # union = pred.sum(dim=(1, 2)) + target.sum(dim=(1, 2))
+    # dice = (2. * intersection + smooth) / (union + smooth)
+    # return dice
+    return pred.eq(target).sum(dim = (1,2))/ (64**2)
+
 def calculate_accuracy(y_pred, y): # DICE
   '''
   Compute accuracy from ground-truth and predicted labels.
@@ -38,14 +46,8 @@ def calculate_accuracy(y_pred, y): # DICE
   '''
   y_prob = torch.sigmoid(y_pred)
   y_pred = (y_prob>0.5).int()
-  acc = 0
-  for i in range(y.shape[0]):
-     y_tmp = y[i,:,:]
-     y_pred_tmp = y_pred[i,:,:]
-     acc_tmp = y_tmp.eq(y_pred_tmp).sum()/np.prod(y_tmp.shape)
-     acc += acc_tmp
-  acc /= y.shape[0]
-  return acc
+  dice_scores = dice_coefficient(y_pred, y)
+  return dice_scores.mean()
 
 class EarlyStopper:
     def __init__(self, patience=1, min_delta=0):
@@ -83,8 +85,8 @@ def train(model, iterator, optimizer, criterion, device):
     optimizer.zero_grad()
 
     # Make Predictions
-    y_pred = model(x)
-    y_pred = y_pred.squeeze(1)
+    y_pred = model(x) # [B, 1, 64, 64]
+    y_pred = y_pred.squeeze(1) # [B, 64, 64]
 
     # Compute loss
     loss = criterion(y_pred, y.float())

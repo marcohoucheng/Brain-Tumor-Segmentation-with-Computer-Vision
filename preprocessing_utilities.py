@@ -79,7 +79,6 @@ def Standardise(image) :
         return new_image
 
 def convert(folder, master_path = './BraTS'):
-
     org_folder = 'BraTS2021_Training_Data'
     img_path = os.path.join(master_path, org_folder, folder, folder + '_flair.nii.gz')
     lab_path = os.path.join(master_path, org_folder, folder, folder + '_seg.nii.gz')
@@ -102,3 +101,61 @@ def convert(folder, master_path = './BraTS'):
             img_final = Standardise(CropAndResize(img_slice))
             np.save(os.path.join(master_path, 'BraTS2021_Training_Data_2D', folder, img_type, folder + '_' + img_type + '_' + str(i+1)), img_final)
             # plt.imsave(os.path.join(master_path, 'BraTS2021_Training_Data_2D', folder, img_type, folder + '_' + img_type + '_' + str(i+1) + '.png'), img_final)
+
+def convert_Unet(folder, master_path = './BraTS'):
+    org_folder = 'BraTS2021_Training_Data_2D'
+    for idx in range(155):
+        dim = [64,64]
+        lab_path = os.path.join(master_path, org_folder, folder, 'seg', folder + '_seg_' + str(idx+1) + '.npy')
+        label = np.load(lab_path)
+        ## Find boundary box for the segmentation
+        # Find the non-zero regions
+        rows = np.any(label, axis=1)
+        cols = np.any(label, axis=0)
+        # Find the bounding box of the non-zero regions
+        rows_indices = np.where(rows)[0]
+        cols_indices = np.where(cols)[0]
+        if len(rows_indices) != 0 or len(cols_indices) != 0:
+            top_row = np.min(rows_indices)
+            bottom_row = np.max(rows_indices)
+            left_col = np.min(cols_indices)
+            right_col = np.max(cols_indices)
+
+            width = right_col - left_col
+            height = bottom_row - top_row
+
+            if width > height:
+                top_row = top_row - (width - height) // 2
+                bottom_row = bottom_row + (width - height) // 2
+                if top_row < 0:
+                    bottom_row = bottom_row - top_row
+                    top_row = 0
+                if bottom_row > 63:
+                    top_row = top_row - (bottom_row - 63)
+                    bottom_row = 63
+            else:
+                left_col = left_col - (height - width) // 2
+                right_col = right_col + (height - width) // 2
+                if left_col < 0:
+                    right_col = right_col - left_col
+                    left_col = 0
+                if right_col > 63:
+                    left_col = left_col - (right_col - 63)
+                    right_col = 63
+            
+            # Crop the label
+            label = label[top_row:bottom_row + 1, left_col:right_col + 1]
+            # Resize the label
+            resized_label = cv2.resize(label, dim, interpolation = cv2.INTER_NEAREST)
+
+            # Save the resized label
+            np.save(os.path.join(master_path, 'BraTS2021_Training_Data_2D_Unet', 'seg', folder + '_seg_' + str(idx+1)), resized_label)
+            np.save(os.path.join(master_path, 'BraTS2021_Training_Data_2D_Unet', 'cropped_area', folder + '_area_' + str(idx+1)), np.array([top_row, bottom_row, left_col, right_col]))
+            # Resize each scan type...
+            for img_type in ['flair', 't1', 't1ce', 't2']:
+                img_path = os.path.join(master_path, org_folder, folder, img_type, folder + '_' + img_type + '_' + str(idx+1) + '.npy')
+                img = np.load(img_path)
+                img = img[top_row:bottom_row + 1, left_col:right_col + 1]
+                # Resize the image
+                resized_image = cv2.resize(img, dim)
+                np.save(os.path.join(master_path, 'BraTS2021_Training_Data_2D_Unet', img_type, folder + '_' + img_type + '_' + str(idx+1)), resized_image)
