@@ -28,7 +28,7 @@ def dice_coefficient(pred, target):
     # union = pred.sum(dim=(1, 2)) + target.sum(dim=(1, 2))
     # dice = (2. * intersection + smooth) / (union + smooth)
     # return dice
-    return pred.eq(target).sum(dim = (1,2))/ (64**2)
+    return pred.eq(target).sum(dim = (1,2,3))/ (np.prod(pred.shape[1:]))
 
 def calculate_accuracy(y_pred, y): # DICE
   '''
@@ -80,13 +80,16 @@ def train(model, iterator, optimizer, criterion, device):
 
     x = x.to(device)
     y = y.to(device)
+    if len(y.shape) == 3:
+      y = y.unsqueeze(1)
 
     # Set gradients to zero
     optimizer.zero_grad()
 
     # Make Predictions
     y_pred = model(x) # [B, 1, 64, 64]
-    y_pred = y_pred.squeeze(1) # [B, 64, 64]
+    # if y_pred.shape[1] == 1:
+    #   y_pred = y_pred.squeeze(1) # [B, 64, 64]
 
     # Compute loss
     loss = criterion(y_pred, y.float())
@@ -125,10 +128,13 @@ def evaluate(model, iterator, criterion, device):
 
       x = x.to(device)
       y = y.to(device)
+      if len(y.shape) == 3:
+        y = y.unsqueeze(1)
 
       # Make Predictions
       y_pred = model(x)
-      y_pred = y_pred.squeeze(1) # [B, 64, 64]
+      # if y_pred.shape[1] == 1:
+      #   y_pred = y_pred.squeeze(1) # [B, 64, 64]
 
       # Compute loss
       loss = criterion(y_pred, y.float())
