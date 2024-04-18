@@ -18,11 +18,11 @@ def CropAndResize(image):
         height = bottom_row - top_row
 
         if width > height:
-            top_row = top_row - (width - height) // 2
-            bottom_row = bottom_row + (width - height) // 2
+            top_row = top_row - np.floor((width - height) / 2)
+            bottom_row = bottom_row + np.ceil((width - height) / 2)
         else:
-            left_col = left_col - (height - width) // 2
-            right_col = right_col + (height - width) // 2
+            left_col = left_col - np.floor((height - width) / 2)
+            right_col = right_col + np.ceil((height - width) / 2)
 
         # Crop the image
         cropped_image = image[top_row:bottom_row + 1, left_col:right_col + 1]
@@ -51,11 +51,11 @@ def CropAndResizeWithRef(ref, image):
         height = bottom_row - top_row
 
         if width > height:
-            top_row = top_row - (width - height) // 2
-            bottom_row = bottom_row + (width - height) // 2
+            top_row = top_row - np.floor((width - height) / 2)
+            bottom_row = bottom_row + np.ceil((width - height) / 2)
         else:
-            left_col = left_col - (height - width) // 2
-            right_col = right_col + (height - width) // 2
+            left_col = left_col - np.floor((height - width) / 2)
+            right_col = right_col + np.ceil((height - width) / 2)
 
         # Crop the image
         resized_ref = ref[top_row:bottom_row + 1, left_col:right_col + 1]
@@ -126,8 +126,8 @@ def convert_Unet_train(folder, master_path = './BraTS'):
             height = bottom_row - top_row
 
             if width > height:
-                top_row = top_row - (width - height) // 2
-                bottom_row = bottom_row + (width - height) // 2
+                top_row = top_row - np.floor((width - height) / 2)
+                bottom_row = bottom_row + np.ceil((width - height) / 2)
                 if top_row < 0:
                     bottom_row = bottom_row - top_row
                     top_row = 0
@@ -135,8 +135,8 @@ def convert_Unet_train(folder, master_path = './BraTS'):
                     top_row = top_row - (bottom_row - 63)
                     bottom_row = 63
             else:
-                left_col = left_col - (height - width) // 2
-                right_col = right_col + (height - width) // 2
+                left_col = left_col - np.floor((height - width) / 2)
+                right_col = right_col + np.ceil((height - width) / 2)
                 if left_col < 0:
                     right_col = right_col - left_col
                     left_col = 0
@@ -185,8 +185,8 @@ def convert_Unet_valid(folder, master_path = './BraTS'):
             height = bottom_row - top_row
 
             if width > height:
-                top_row = top_row - (width - height) // 2
-                bottom_row = bottom_row + (width - height) // 2
+                top_row = top_row - np.floor((width - height) / 2)
+                bottom_row = bottom_row + np.ceil((width - height) / 2)
                 if top_row < 0:
                     bottom_row = bottom_row - top_row
                     top_row = 0
@@ -194,15 +194,15 @@ def convert_Unet_valid(folder, master_path = './BraTS'):
                     top_row = top_row - (bottom_row - 63)
                     bottom_row = 63
             else:
-                left_col = left_col - (height - width) // 2
-                right_col = right_col + (height - width) // 2
+                left_col = left_col - np.floor((height - width) / 2)
+                right_col = right_col + np.ceil((height - width) / 2)
                 if left_col < 0:
                     right_col = right_col - left_col
                     left_col = 0
                 if right_col > 63:
                     left_col = left_col - (right_col - 63)
                     right_col = 63
-            
+                        
             # Crop the label
             label = label[top_row:bottom_row + 1, left_col:right_col + 1]
             # Resize the label
@@ -244,8 +244,8 @@ def convert_Unet_test(folder, master_path = './BraTS'):
             height = bottom_row - top_row
 
             if width > height:
-                top_row = top_row - (width - height) // 2
-                bottom_row = bottom_row + (width - height) // 2
+                top_row = top_row - np.floor((width - height) / 2)
+                bottom_row = bottom_row + np.ceil((width - height) / 2)
                 if top_row < 0:
                     bottom_row = bottom_row - top_row
                     top_row = 0
@@ -253,8 +253,8 @@ def convert_Unet_test(folder, master_path = './BraTS'):
                     top_row = top_row - (bottom_row - 63)
                     bottom_row = 63
             else:
-                left_col = left_col - (height - width) // 2
-                right_col = right_col + (height - width) // 2
+                left_col = left_col - np.floor((height - width) / 2)
+                right_col = right_col + np.ceil((height - width) / 2)
                 if left_col < 0:
                     right_col = right_col - left_col
                     left_col = 0
