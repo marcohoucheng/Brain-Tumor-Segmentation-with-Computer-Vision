@@ -1,68 +1,28 @@
 import os, cv2, nibabel as nib, numpy as np
 
+from utilities import boundary
+
 def CropAndResize(image):
-    # Find the non-zero regions
-    rows = np.any(image, axis=1)
-    cols = np.any(image, axis=0)
 
-    # Find the bounding box of the non-zero regions
-    rows_indices = np.where(rows)[0]
-    cols_indices = np.where(cols)[0]
-    if len(rows_indices) != 0 or len(cols_indices) != 0:
-        top_row = np.min(rows_indices)
-        bottom_row = np.max(rows_indices)
-        left_col = np.min(cols_indices)
-        right_col = np.max(cols_indices)
+    top_row, bottom_row, left_col, right_col = boundary(image)
+    top_row, bottom_row, left_col, right_col = int(top_row), int(bottom_row), int(left_col), int(right_col)
 
-        width = right_col - left_col
-        height = bottom_row - top_row
-
-        if width > height:
-            top_row = top_row - np.floor((width - height) / 2)
-            bottom_row = bottom_row + np.ceil((width - height) / 2)
-        else:
-            left_col = left_col - np.floor((height - width) / 2)
-            right_col = right_col + np.ceil((height - width) / 2)
-
-        # Crop the image
-        cropped_image = image[top_row:bottom_row + 1, left_col:right_col + 1]
-    else:
-        cropped_image = image
+    # Crop the image
+    cropped_image = image[top_row:bottom_row + 1, left_col:right_col + 1]
+    
     # Resize the image
     dim = [64,64]
     resized_image = cv2.resize(cropped_image, dim)
     return resized_image
 
 def CropAndResizeWithRef(ref, image):
-    # Find the non-zero regions
-    rows = np.any(ref, axis=1)
-    cols = np.any(ref, axis=0)
 
-    # Find the bounding box of the non-zero regions
-    rows_indices = np.where(rows)[0]
-    cols_indices = np.where(cols)[0]
-    if len(rows_indices) != 0 or len(cols_indices) != 0:
-        top_row = np.min(rows_indices)
-        bottom_row = np.max(rows_indices)
-        left_col = np.min(cols_indices)
-        right_col = np.max(cols_indices)
+    top_row, bottom_row, left_col, right_col = boundary(ref)
 
-        width = right_col - left_col
-        height = bottom_row - top_row
+    # Crop the image
+    resized_ref = ref[top_row:bottom_row + 1, left_col:right_col + 1]
+    cropped_image = image[top_row:bottom_row + 1, left_col:right_col + 1]
 
-        if width > height:
-            top_row = top_row - np.floor((width - height) / 2)
-            bottom_row = bottom_row + np.ceil((width - height) / 2)
-        else:
-            left_col = left_col - np.floor((height - width) / 2)
-            right_col = right_col + np.ceil((height - width) / 2)
-
-        # Crop the image
-        resized_ref = ref[top_row:bottom_row + 1, left_col:right_col + 1]
-        cropped_image = image[top_row:bottom_row + 1, left_col:right_col + 1]
-    else:
-        resized_ref = ref
-        cropped_image = image
     # Resize the image
     dim = [64,64]
     resized_image = cv2.resize(cropped_image, dim, interpolation = cv2.INTER_NEAREST)
@@ -109,41 +69,11 @@ def convert_Unet_train(folder, master_path = './BraTS'):
         dim = [64,64]
         lab_path = os.path.join(master_path, org_folder, folder, 'seg', folder + '_seg_' + str(idx+1) + '.npy')
         label = np.load(lab_path)
-        ## Find boundary box for the segmentation
-        # Find the non-zero regions
-        rows = np.any(label, axis=1)
-        cols = np.any(label, axis=0)
-        # Find the bounding box of the non-zero regions
-        rows_indices = np.where(rows)[0]
-        cols_indices = np.where(cols)[0]
-        if len(rows_indices) != 0 or len(cols_indices) != 0:
-            top_row = np.min(rows_indices)
-            bottom_row = np.max(rows_indices)
-            left_col = np.min(cols_indices)
-            right_col = np.max(cols_indices)
 
-            width = right_col - left_col
-            height = bottom_row - top_row
-
-            if width > height:
-                top_row = top_row - np.floor((width - height) / 2)
-                bottom_row = bottom_row + np.ceil((width - height) / 2)
-                if top_row < 0:
-                    bottom_row = bottom_row - top_row
-                    top_row = 0
-                if bottom_row > 63:
-                    top_row = top_row - (bottom_row - 63)
-                    bottom_row = 63
-            else:
-                left_col = left_col - np.floor((height - width) / 2)
-                right_col = right_col + np.ceil((height - width) / 2)
-                if left_col < 0:
-                    right_col = right_col - left_col
-                    left_col = 0
-                if right_col > 63:
-                    left_col = left_col - (right_col - 63)
-                    right_col = 63
-            
+        # Find boundary box for the segmentation
+        top_row, bottom_row, left_col, right_col = boundary(label)
+        
+        if not(top_row == 0 and bottom_row == 63 and left_col == 0 and right_col == 63):
             # Crop the label
             label = label[top_row:bottom_row + 1, left_col:right_col + 1]
             # Resize the label
@@ -168,40 +98,11 @@ def convert_Unet_valid(folder, master_path = './BraTS'):
         dim = [64,64]
         lab_path = os.path.join(master_path, org_folder, folder, 'seg', folder + '_seg_' + str(idx+1) + '.npy')
         label = np.load(lab_path)
-        ## Find boundary box for the segmentation
-        # Find the non-zero regions
-        rows = np.any(label, axis=1)
-        cols = np.any(label, axis=0)
-        # Find the bounding box of the non-zero regions
-        rows_indices = np.where(rows)[0]
-        cols_indices = np.where(cols)[0]
-        if len(rows_indices) != 0 or len(cols_indices) != 0:
-            top_row = np.min(rows_indices)
-            bottom_row = np.max(rows_indices)
-            left_col = np.min(cols_indices)
-            right_col = np.max(cols_indices)
-
-            width = right_col - left_col
-            height = bottom_row - top_row
-
-            if width > height:
-                top_row = top_row - np.floor((width - height) / 2)
-                bottom_row = bottom_row + np.ceil((width - height) / 2)
-                if top_row < 0:
-                    bottom_row = bottom_row - top_row
-                    top_row = 0
-                if bottom_row > 63:
-                    top_row = top_row - (bottom_row - 63)
-                    bottom_row = 63
-            else:
-                left_col = left_col - np.floor((height - width) / 2)
-                right_col = right_col + np.ceil((height - width) / 2)
-                if left_col < 0:
-                    right_col = right_col - left_col
-                    left_col = 0
-                if right_col > 63:
-                    left_col = left_col - (right_col - 63)
-                    right_col = 63
+        
+        # Find boundary box for the segmentation
+        top_row, bottom_row, left_col, right_col = boundary(label)
+        
+        if not(top_row == 0 and bottom_row == 63 and left_col == 0 and right_col == 63):
                         
             # Crop the label
             label = label[top_row:bottom_row + 1, left_col:right_col + 1]
@@ -227,40 +128,11 @@ def convert_Unet_test(folder, master_path = './BraTS'):
         dim = [64,64]
         lab_path = os.path.join(master_path, org_folder, folder, 'seg', folder + '_seg_' + str(idx+1) + '.npy')
         label = np.load(lab_path)
-        ## Find boundary box for the segmentation
-        # Find the non-zero regions
-        rows = np.any(label, axis=1)
-        cols = np.any(label, axis=0)
-        # Find the bounding box of the non-zero regions
-        rows_indices = np.where(rows)[0]
-        cols_indices = np.where(cols)[0]
-        if len(rows_indices) != 0 or len(cols_indices) != 0:
-            top_row = np.min(rows_indices)
-            bottom_row = np.max(rows_indices)
-            left_col = np.min(cols_indices)
-            right_col = np.max(cols_indices)
-
-            width = right_col - left_col
-            height = bottom_row - top_row
-
-            if width > height:
-                top_row = top_row - np.floor((width - height) / 2)
-                bottom_row = bottom_row + np.ceil((width - height) / 2)
-                if top_row < 0:
-                    bottom_row = bottom_row - top_row
-                    top_row = 0
-                if bottom_row > 63:
-                    top_row = top_row - (bottom_row - 63)
-                    bottom_row = 63
-            else:
-                left_col = left_col - np.floor((height - width) / 2)
-                right_col = right_col + np.ceil((height - width) / 2)
-                if left_col < 0:
-                    right_col = right_col - left_col
-                    left_col = 0
-                if right_col > 63:
-                    left_col = left_col - (right_col - 63)
-                    right_col = 63
+        
+        # Find boundary box for the segmentation
+        top_row, bottom_row, left_col, right_col = boundary(label)
+        
+        if not(top_row == 0 and bottom_row == 63 and left_col == 0 and right_col == 63):
             
             # Crop the label
             label = label[top_row:bottom_row + 1, left_col:right_col + 1]

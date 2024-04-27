@@ -257,3 +257,46 @@ def print_report(model, test_iterator, device):
   print(confusion_matrix(labels, pred))
   print("\n")
   print(classification_report(labels, pred))
+
+def boundary(image):
+    
+    max_idx = image.shape[0]
+    # Find the non-zero regions
+    rows = np.any(image, axis=1)
+    cols = np.any(image, axis=0)
+    # Find the bounding box of the non-zero regions
+    rows_indices = np.where(rows)[0]
+    cols_indices = np.where(cols)[0]
+    if len(rows_indices) != 0 or len(cols_indices) != 0:
+        top_row = np.min(rows_indices)
+        bottom_row = np.max(rows_indices)
+        left_col = np.min(cols_indices)
+        right_col = np.max(cols_indices)
+
+        width = right_col - left_col
+        height = bottom_row - top_row
+
+        if width > height:
+            top_row = top_row - np.floor((width - height) / 2)
+            bottom_row = bottom_row + np.ceil((width - height) / 2)
+            if top_row < 0:
+                bottom_row = bottom_row - top_row
+                top_row = 0
+            if bottom_row > max_idx - 1:
+                top_row = top_row - (bottom_row - (max_idx - 1))
+                bottom_row = max_idx - 1
+        else:
+            left_col = left_col - np.floor((height - width) / 2)
+            right_col = right_col + np.ceil((height - width) / 2)
+            if left_col < 0:
+                right_col = right_col - left_col
+                left_col = 0
+            if right_col > max_idx - 1:
+                left_col = left_col - (right_col - (max_idx - 1))
+                right_col = max_idx - 1
+    else:
+        top_row = 0
+        bottom_row = max_idx - 1
+        left_col = 0
+        right_col = max_idx - 1
+    return int(top_row), int(bottom_row), int(left_col), int(right_col)
