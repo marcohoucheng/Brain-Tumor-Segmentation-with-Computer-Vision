@@ -49,22 +49,19 @@ def convert(folder, master_path = './BraTS'):
         lab_slice = lab[:,:,i]
         img_final, lab_final = CropAndResizeWithRef(img_slice, lab_slice)
         img_final = Standardise(img_final)
-        # plt.imsave(os.path.join(master_path, 'BraTS2021_Training_Data_2D', folder, 'flair', folder + '_flair_' + str(i+1) + '.png'), img_final)
-        np.save(os.path.join(master_path, 'BraTS2021_Training_Data_2D', folder, 'flair', folder + '_flair_' + str(i+1)), img_final)
-        np.save(os.path.join(master_path, 'BraTS2021_Training_Data_2D', folder, 'seg', folder + '_seg_' + str(i+1)), lab_final)
-        # np.save(os.path.join(master_path, 'BraTS2021_Training_Data_2D', folder, 'seg_bin', folder + '_seg_bin_' + str(i+1) + '.png'), (lab_final > 0).astype(np.uint8))
+        np.save(os.path.join(master_path, 'BraTS2021_Training_Data_Slice', folder, 'flair', folder + '_flair_' + str(i+1)), img_final)
+        np.save(os.path.join(master_path, 'BraTS2021_Training_Data_Slice', folder, 'seg', folder + '_seg_' + str(i+1)), lab_final)
     for img_type in ['t1', 't1ce', 't2']:
         img_path = os.path.join(master_path, org_folder, folder, folder + '_' + img_type + '.nii.gz')
         img = nib.load(img_path).get_fdata()
         for i in range(img.shape[-1]):
             img_slice = img[:,:,i]
             img_final = Standardise(CropAndResize(img_slice))
-            np.save(os.path.join(master_path, 'BraTS2021_Training_Data_2D', folder, img_type, folder + '_' + img_type + '_' + str(i+1)), img_final)
-            # plt.imsave(os.path.join(master_path, 'BraTS2021_Training_Data_2D', folder, img_type, folder + '_' + img_type + '_' + str(i+1) + '.png'), img_final)
+            np.save(os.path.join(master_path, 'BraTS2021_Training_Data_Slice', folder, img_type, folder + '_' + img_type + '_' + str(i+1)), img_final)
 
 def convert_Unet_train(folder, master_path = './BraTS'):
     save_folder = 'train'
-    org_folder = 'BraTS2021_Training_Data_2D'
+    org_folder = 'BraTS2021_Training_Data_Slice'
     for idx in range(155):
         dim = [64,64]
         lab_path = os.path.join(master_path, org_folder, folder, 'seg', folder + '_seg_' + str(idx+1) + '.npy')
@@ -80,8 +77,8 @@ def convert_Unet_train(folder, master_path = './BraTS'):
             resized_label = cv2.resize(label, dim, interpolation = cv2.INTER_NEAREST)
 
             # Save the resized label
-            np.save(os.path.join(master_path, 'BraTS2021_Training_Data_2D_Unet', save_folder, 'seg', folder + '_seg_' + str(idx+1)), resized_label)
-            np.save(os.path.join(master_path, 'BraTS2021_Training_Data_2D_Unet', save_folder, 'cropped_area', folder + '_area_' + str(idx+1)), np.array([top_row, bottom_row, left_col, right_col]))
+            np.save(os.path.join(master_path, 'BraTS2021_Training_Data_Slice_Cropped', save_folder, 'seg', folder + '_seg_' + str(idx+1)), resized_label)
+            np.save(os.path.join(master_path, 'BraTS2021_Training_Data_Slice_Cropped', save_folder, 'cropped_area', folder + '_area_' + str(idx+1)), np.array([top_row, bottom_row, left_col, right_col]))
             # Resize each scan type...
             for img_type in ['flair', 't1', 't1ce', 't2']:
                 img_path = os.path.join(master_path, org_folder, folder, img_type, folder + '_' + img_type + '_' + str(idx+1) + '.npy')
@@ -89,11 +86,11 @@ def convert_Unet_train(folder, master_path = './BraTS'):
                 img = img[top_row:bottom_row + 1, left_col:right_col + 1]
                 # Resize the image
                 resized_image = cv2.resize(img, dim)
-                np.save(os.path.join(master_path, 'BraTS2021_Training_Data_2D_Unet', save_folder, img_type, folder + '_' + img_type + '_' + str(idx+1)), resized_image)
+                np.save(os.path.join(master_path, 'BraTS2021_Training_Data_Slice_Cropped', save_folder, img_type, folder + '_' + img_type + '_' + str(idx+1)), resized_image)
 
 def convert_Unet_valid(folder, master_path = './BraTS'):
     save_folder = 'valid'
-    org_folder = 'BraTS2021_Training_Data_2D'
+    org_folder = 'BraTS2021_Training_Data_Slice'
     for idx in range(155):
         dim = [64,64]
         lab_path = os.path.join(master_path, org_folder, folder, 'seg', folder + '_seg_' + str(idx+1) + '.npy')
@@ -110,8 +107,8 @@ def convert_Unet_valid(folder, master_path = './BraTS'):
             resized_label = cv2.resize(label, dim, interpolation = cv2.INTER_NEAREST)
 
             # Save the resized label
-            np.save(os.path.join(master_path, 'BraTS2021_Training_Data_2D_Unet', save_folder, 'seg', folder + '_seg_' + str(idx+1)), resized_label)
-            np.save(os.path.join(master_path, 'BraTS2021_Training_Data_2D_Unet', save_folder, 'cropped_area', folder + '_area_' + str(idx+1)), np.array([top_row, bottom_row, left_col, right_col]))
+            np.save(os.path.join(master_path, 'BraTS2021_Training_Data_Slice_Cropped', save_folder, 'seg', folder + '_seg_' + str(idx+1)), resized_label)
+            np.save(os.path.join(master_path, 'BraTS2021_Training_Data_Slice_Cropped', save_folder, 'cropped_area', folder + '_area_' + str(idx+1)), np.array([top_row, bottom_row, left_col, right_col]))
             # Resize each scan type...
             for img_type in ['flair', 't1', 't1ce', 't2']:
                 img_path = os.path.join(master_path, org_folder, folder, img_type, folder + '_' + img_type + '_' + str(idx+1) + '.npy')
@@ -119,11 +116,11 @@ def convert_Unet_valid(folder, master_path = './BraTS'):
                 img = img[top_row:bottom_row + 1, left_col:right_col + 1]
                 # Resize the image
                 resized_image = cv2.resize(img, dim)
-                np.save(os.path.join(master_path, 'BraTS2021_Training_Data_2D_Unet', save_folder, img_type, folder + '_' + img_type + '_' + str(idx+1)), resized_image)
+                np.save(os.path.join(master_path, 'BraTS2021_Training_Data_Slice_Cropped', save_folder, img_type, folder + '_' + img_type + '_' + str(idx+1)), resized_image)
 
 def convert_Unet_test(folder, master_path = './BraTS'):
     save_folder = 'test'
-    org_folder = 'BraTS2021_Training_Data_2D'
+    org_folder = 'BraTS2021_Training_Data_Slice'
     for idx in range(155):
         dim = [64,64]
         lab_path = os.path.join(master_path, org_folder, folder, 'seg', folder + '_seg_' + str(idx+1) + '.npy')
@@ -140,8 +137,8 @@ def convert_Unet_test(folder, master_path = './BraTS'):
             resized_label = cv2.resize(label, dim, interpolation = cv2.INTER_NEAREST)
 
             # Save the resized label
-            np.save(os.path.join(master_path, 'BraTS2021_Training_Data_2D_Unet', save_folder, 'seg', folder + '_seg_' + str(idx+1)), resized_label)
-            np.save(os.path.join(master_path, 'BraTS2021_Training_Data_2D_Unet', save_folder, 'cropped_area', folder + '_area_' + str(idx+1)), np.array([top_row, bottom_row, left_col, right_col]))
+            np.save(os.path.join(master_path, 'BraTS2021_Training_Data_Slice_Cropped', save_folder, 'seg', folder + '_seg_' + str(idx+1)), resized_label)
+            np.save(os.path.join(master_path, 'BraTS2021_Training_Data_Slice_Cropped', save_folder, 'cropped_area', folder + '_area_' + str(idx+1)), np.array([top_row, bottom_row, left_col, right_col]))
             # Resize each scan type...
             for img_type in ['flair', 't1', 't1ce', 't2']:
                 img_path = os.path.join(master_path, org_folder, folder, img_type, folder + '_' + img_type + '_' + str(idx+1) + '.npy')
@@ -149,10 +146,10 @@ def convert_Unet_test(folder, master_path = './BraTS'):
                 img = img[top_row:bottom_row + 1, left_col:right_col + 1]
                 # Resize the image
                 resized_image = cv2.resize(img, dim)
-                np.save(os.path.join(master_path, 'BraTS2021_Training_Data_2D_Unet', save_folder, img_type, folder + '_' + img_type + '_' + str(idx+1)), resized_image)
+                np.save(os.path.join(master_path, 'BraTS2021_Training_Data_Slice_Cropped', save_folder, img_type, folder + '_' + img_type + '_' + str(idx+1)), resized_image)
 
 def convert_Unet_pred(file, master_path = './BraTS'):
-    org_folder = 'BraTS2021_Training_Data_2D'
+    org_folder = 'BraTS2021_Training_Data_Slice'
     ref_folder = 'CA_Flair_Area'
     save_folder = 'UNet_Test_Input'
     org_image = file[0] + '_flair_' + file[1] + '.npy'

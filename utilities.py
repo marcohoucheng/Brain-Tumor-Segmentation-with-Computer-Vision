@@ -203,7 +203,7 @@ def model_training(n_epochs, model, train_iterator, valid_iterator, optimizer, c
 
   return train_losses, train_accs, valid_losses, valid_accs, train_batch_losses, train_batch_accs, valid_batch_losses, valid_batch_accs
 
-def plot_results(n_epochs, train_losses, train_accs, valid_losses, valid_accs):
+def plot_results(n_epochs, train_losses, train_accs, valid_losses, valid_accs, save = False, save_name = 'results.png'):
   N_EPOCHS = n_epochs
   # Plot results
   plt.figure(figsize=(20, 6))
@@ -218,6 +218,7 @@ def plot_results(n_epochs, train_losses, train_accs, valid_losses, valid_accs):
   plt.plot(np.arange(N_EPOCHS)+1, valid_accs, linewidth=3)
   _ = plt.legend(['Train', 'Validation'])
   plt.grid('on'), plt.xlabel('Epoch'), plt.ylabel('Accuracy')
+  plt.savefig(save_name) if save else plt.show()
 
 def model_testing(model, test_iterator, criterion, device, model_name='best_model.pt'):
   # Test model
