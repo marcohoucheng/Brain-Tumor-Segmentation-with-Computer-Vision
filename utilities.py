@@ -107,8 +107,8 @@ def train(model, iterator, optimizer, criterion, device):
     batch_loss.append(loss.item())
     batch_acc.append(acc.item())
 
-    print("{0:0.1f}".format((i+1)/len(iterator)*100), "% loaded in this epoch for training", end="\r")
-  print("\n")
+  #   print("{0:0.1f}".format((i+1)/len(iterator)*100), "% loaded in this epoch for training", end="\r")
+  # print("\n")
   return np.sum(batch_loss)/len(iterator), np.sum(batch_acc)/len(iterator), batch_loss, batch_acc
 
 def evaluate(model, iterator, criterion, device):
@@ -146,8 +146,8 @@ def evaluate(model, iterator, criterion, device):
       batch_loss.append(loss.item())
       batch_acc.append(acc.item())
 
-      print("{0:0.1f}".format((i+1)/len(iterator)*100), "% loaded in this epoch for evaluation.", end="\r")
-  print("\n")
+  #     print("{0:0.1f}".format((i+1)/len(iterator)*100), "% loaded in this epoch for evaluation.", end="\r")
+  # print("\n")
   return np.sum(batch_loss)/len(iterator), np.sum(batch_acc)/len(iterator), batch_loss, batch_acc
 
 def model_training(n_epochs, model, train_iterator, valid_iterator, optimizer, criterion, device, model_name='best_model.pt'):
@@ -251,7 +251,6 @@ def predict(model, iterator, device):
       preds.append(y_pred.cpu())
 
   return torch.cat(labels, dim=0), torch.cat(preds, dim=0)
-
 
 def print_report(model, test_iterator, device):
   labels, pred = predict(model, test_iterator, device)
