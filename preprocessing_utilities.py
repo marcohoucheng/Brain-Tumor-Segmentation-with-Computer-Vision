@@ -150,8 +150,8 @@ def convert_Unet_test(folder, master_path = './BraTS'):
 
 def convert_Unet_pred(file, master_path = './BraTS'):
     org_folder = 'BraTS2021_Training_Data_Slice'
-    ref_folder = 'CA_Flair_Area'
-    save_folder = 'UNet_Test_Input'
+    ref_folder = os.path.join('pipeline_prediction', 'CA_Flair_Area')
+    save_folder = os.path.join('pipeline_prediction', 'UNet_Test_Input')
     org_image = file[0] + '_flair_' + file[1] + '.npy'
     ref_dim = file[0] + '_ROI_pred_' + file[1] + '.npy'
 
