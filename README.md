@@ -25,14 +25,17 @@ The model training steps can be replicated following the steps shown in `1_train
 
 5 predictions from the test dataset.
 
-![BraTS2021_00171](/Sample Gifs/BraTS2021_00171.gif)
+- Left: Ground Truth
+- Right: Prediction
 
-![BraTS2021_00203](/Sample Gifs/BraTS2021_00203.gif)
+![BraTS2021_00171](https://raw.githubusercontent.com/marcohoucheng/Brain-Tumor-Segmentation-with-Computer-Vision/main/Sample%20Gifs/BraTS2021_00171.gif)
 
-![BraTS2021_00211](/Sample Gifs/BraTS2021_00211.gif)
+![BraTS2021_00203](https://raw.githubusercontent.com/marcohoucheng/Brain-Tumor-Segmentation-with-Computer-Vision/main/Sample%20Gifs/BraTS2021_00203.gif)
 
-![BraTS2021_01079](/Sample Gifs/BraTS2021_01079.gif)
+![BraTS2021_00211](https://raw.githubusercontent.com/marcohoucheng/Brain-Tumor-Segmentation-with-Computer-Vision/main/Sample%20Gifs/BraTS2021_00211.gif)
 
-![BraTS2021_01113](/Sample Gifs/BraTS2021_01113.gif)
+![BraTS2021_01079](https://raw.githubusercontent.com/marcohoucheng/Brain-Tumor-Segmentation-with-Computer-Vision/main/Sample%20Gifs/BraTS2021_01079.gif)
 
-![BraTS2021_01121](/Sample Gifs/BraTS2021_01121.gif)
+![BraTS2021_01113](https://raw.githubusercontent.com/marcohoucheng/Brain-Tumor-Segmentation-with-Computer-Vision/main/Sample%20Gifs/BraTS2021_01113.gif)
+
+![BraTS2021_01121](https://raw.githubusercontent.com/marcohoucheng/Brain-Tumor-Segmentation-with-Computer-Vision/main/Sample%20Gifs/BraTS2021_01121.gif)
