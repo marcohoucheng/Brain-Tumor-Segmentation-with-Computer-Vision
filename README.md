@@ -20,3 +20,14 @@ The model created in this repo contains is a pipeline model containing a Convolu
 ## Usage
 
 The model training steps can be replicated following the steps shown in `1_train.ipynb`. The analysis of the model on the test dataset can be found in `2_test_prediction.ipynb`. The code has been tested on Python 3.11.6 and 3.12.0. The list of required libraries and their respective versions can be found in `requirements.txt`.
+
+## Sample Predictions
+
+5 predictions from the test dataset.
+
+![](Sample Gifs/BraTS2021_00171.gif)
+![](Sample Gifs/BraTS2021_00203.gif)
+![](Sample Gifs/BraTS2021_00211.gif)
+![](Sample Gifs/BraTS2021_01079.gif)
+![](Sample Gifs/BraTS2021_01113.gif)
+![](Sample Gifs/BraTS2021_01121.gif)
