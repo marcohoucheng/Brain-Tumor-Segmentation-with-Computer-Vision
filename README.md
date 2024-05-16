@@ -23,7 +23,7 @@ The model training steps can be replicated following the steps shown in `1_train
 
 ## Sample Predictions
 
-5 predictions from the test dataset.
+6 predictions from the test dataset.
 
 - Left: Ground Truth
 - Right: Prediction
