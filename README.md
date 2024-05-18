@@ -1,6 +1,10 @@
 # Brain Tumor Segmentation (BraTS) Challenge with Computer Vision
 
-This aim of this repo is to train a Computer Vision model (CNN, RNN etc.) on MRI scans to identify brain tumor segmentation. The data is provided by the RSNA-ASNR-MICCAI Brain Tumor Segmentation (BraTS) Challenge 2021 and similar datasets can be downloaded from one of the below:
+This aim of this repo is to train a Computer Vision model (CNN, RNN etc.) on MRI scans to identify brain tumor segmentation. The gif shows an example of the true data (L) against our predicted result (R). More samples are available at the bottom of this page.
+
+![BraTS2021_00203](https://raw.githubusercontent.com/marcohoucheng/Brain-Tumor-Segmentation-with-Computer-Vision/main/Sample%20Gifs/BraTS2021_00203.gif)
+
+The data is provided by the RSNA-ASNR-MICCAI Brain Tumor Segmentation (BraTS) Challenge 2021 and similar datasets can be downloaded from one of the below:
 
 - [www.kaggle.com/datasets/dschettler8845/brats-2021-task1](https://www.kaggle.com/datasets/dschettler8845/brats-2021-task1)
 - [www.kaggle.com/competitions/rsna-miccai-brain-tumor-radiogenomic-classification/](https://www.kaggle.com/competitions/rsna-miccai-brain-tumor-radiogenomic-classification/)
@@ -29,8 +33,6 @@ The model training steps can be replicated following the steps shown in `1_train
 - Right: Prediction
 
 ![BraTS2021_00171](https://raw.githubusercontent.com/marcohoucheng/Brain-Tumor-Segmentation-with-Computer-Vision/main/Sample%20Gifs/BraTS2021_00171.gif)
-
-![BraTS2021_00203](https://raw.githubusercontent.com/marcohoucheng/Brain-Tumor-Segmentation-with-Computer-Vision/main/Sample%20Gifs/BraTS2021_00203.gif)
 
 ![BraTS2021_00211](https://raw.githubusercontent.com/marcohoucheng/Brain-Tumor-Segmentation-with-Computer-Vision/main/Sample%20Gifs/BraTS2021_00211.gif)
 
