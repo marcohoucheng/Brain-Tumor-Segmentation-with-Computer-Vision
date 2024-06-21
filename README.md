@@ -4,7 +4,7 @@ This aim of this repo is to train a Computer Vision model (CNN, RNN etc.) on MRI
 
 Here is an example of the true data (L) against our predicted result (R). More samples are available at the bottom of this page.
 
-![BraTS2021_00203](https://raw.githubusercontent.com/marcohoucheng/Brain-Tumor-Segmentation-with-Computer-Vision/main/Sample%20Gifs/BraTS2021_00203.gif)
+![BraTS2021_00203](https://raw.githubusercontent.com/marcohoucheng/Brain-Tumor-Segmentation-with-Computer-Vision/main/sample%20images/sample%20gifs/BraTS2021_00203.gif)
 
 The data is provided by the RSNA-ASNR-MICCAI Brain Tumor Segmentation (BraTS) Challenge 2021 and similar datasets can be downloaded from one of the below:
 
@@ -34,12 +34,12 @@ The model training steps can be replicated following the steps shown in `1_train
 - Left: Ground Truth
 - Right: Prediction
 
-![BraTS2021_00171](https://raw.githubusercontent.com/marcohoucheng/Brain-Tumor-Segmentation-with-Computer-Vision/main/Sample%20Gifs/BraTS2021_00171.gif)
+![BraTS2021_00171](https://raw.githubusercontent.com/marcohoucheng/Brain-Tumor-Segmentation-with-Computer-Vision/main/sample%20images/sample%20gifs/BraTS2021_00171.gif)
 
-![BraTS2021_00211](https://raw.githubusercontent.com/marcohoucheng/Brain-Tumor-Segmentation-with-Computer-Vision/main/Sample%20Gifs/BraTS2021_00211.gif)
+![BraTS2021_00211](https://raw.githubusercontent.com/marcohoucheng/Brain-Tumor-Segmentation-with-Computer-Vision/main/sample%20images/sample%20gifs/BraTS2021_00211.gif)
 
-![BraTS2021_01079](https://raw.githubusercontent.com/marcohoucheng/Brain-Tumor-Segmentation-with-Computer-Vision/main/Sample%20Gifs/BraTS2021_01079.gif)
+![BraTS2021_01079](https://raw.githubusercontent.com/marcohoucheng/Brain-Tumor-Segmentation-with-Computer-Vision/main/sample%20images/sample%20gifs/BraTS2021_01079.gif)
 
-![BraTS2021_01113](https://raw.githubusercontent.com/marcohoucheng/Brain-Tumor-Segmentation-with-Computer-Vision/main/Sample%20Gifs/BraTS2021_01113.gif)
+![BraTS2021_01113](https://raw.githubusercontent.com/marcohoucheng/Brain-Tumor-Segmentation-with-Computer-Vision/main/sample%20images/sample%20gifs/BraTS2021_01113.gif)
 
-![BraTS2021_01121](https://raw.githubusercontent.com/marcohoucheng/Brain-Tumor-Segmentation-with-Computer-Vision/main/Sample%20Gifs/BraTS2021_01121.gif)
+![BraTS2021_01121](https://raw.githubusercontent.com/marcohoucheng/Brain-Tumor-Segmentation-with-Computer-Vision/main/sample%20images/sample%20gifs/BraTS2021_01121.gif)
