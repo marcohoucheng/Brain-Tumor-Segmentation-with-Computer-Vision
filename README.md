@@ -1,6 +1,6 @@
 # Brain Tumor Segmentation (BraTS) Challenge with Computer Vision
 
-This aim of this repo is to train a Computer Vision model (CNN, RNN etc.) on MRI scans to identify brain tumor segmentation. A [report](Scientific_Report.pdf) is available detailing the motivation, research on relevent work and results on model training and tesing.
+This aim of this repo is to train a Computer Vision model (CNN, RNN etc.) on MRI scans to identify brain tumor segmentation. A [report](https://raw.githubusercontent.com/marcohoucheng/Brain-Tumor-Segmentation-with-Computer-Vision/main/Scientific_Report.pdf) is available detailing the motivation, research on relevent work and results on model training and tesing.
 
 Here is an example of the true data (L) against our predicted result (R). More samples are available at the bottom of this page.
 
